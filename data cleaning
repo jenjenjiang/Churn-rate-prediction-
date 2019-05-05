@@ -96,33 +96,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 #main(args.data_filename, args.dist_file, args.output)
- create correlation matrix
-# create correlation matrix 
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-
-train_corr = train.iloc[:,1:46]
-
-corr = train_corr.corr()
-corr.to_excel("correlation.xls")
-corr.style.background_gradient()
- DecisionTreeClassifier predict
-# DecisionTreeClassifier predict 
-from sklearn.metrics import accuracy_score
-x_test = dev_test.iloc[:,0:46]
-x_test_1 = x_test.drop(['Client_MYOL_Statut'], axis=1, inplace=False)
-x_t1_m = x_test_1.as_matrix()
-test_pred = clf.predict(x_t1_m)
-y_test = dev_test.Client_Abo_1819.as_matrix()
- read file and generate train, test data
-filename = "C:\\Users\\..v"
-dist_file = "C:\\Users\\.."
-output_folder = "C:\\Users\\.."
-print(filename)
-main(filename,dist_file , output_folder)
-
-train= pd.read_csv("C:\\Users\\..")
-dev_test = pd.read_csv("C:\\Users\\..")
-final_test = pd.read_csv("C:\\Users\..")
-train.head(3)
