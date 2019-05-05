@@ -1,0 +1,8 @@
+#build model(tree)
+from sklearn import tree
+clf = tree.DecisionTreeClassifier(min_samples_split = 20, max_depth = 5 )
+x = train.iloc[:,0:46]
+x_1 = x.drop(['Client_MYOL_Statut'], axis=1, inplace=False)
+x_1_m = x_1.as_matrix()
+y = train.Client_Abo_1819.as_matrix()
+clf = clf.fit(x_1_m, y)
