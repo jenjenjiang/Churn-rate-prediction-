@@ -1,0 +1,128 @@
+!/usr/bin/env python3
+
+import sys
+import argparse
+import pandas as pd
+import numpy as np
+
+def get_size(total_size, percentage, mean):
+    size_train = int(percentage * total_size / 100)
+    size_client_abo = [int(size_train * (1 - mean)), int(size_train * mean)] 
+    return size_client_abo
+
+def populate(data, indexs, sizes):
+    l = []
+    sorted_data = data.sort_values(by=['Client_Abo_1819'])
+    i = [0, 0]
+    while i[0] < sizes[0]:
+        l.append(sorted_data.iloc[indexs[0] + i[0]])
+        i[0] += 1
+    while i[1] < sizes[1]:
+        l.append(sorted_data.iloc[len(data) - (indexs[1] + i[1]) - 1])
+        i[1] += 1
+
+    indexs[0] += i[0]
+    indexs[1] += i[1]
+    return pd.DataFrame.from_dict(l)
+
+def remove_trash_data(data):
+    new_data = data[data.Client_Code_Postal != 'Inconnu']
+    new_data = new_data[new_data.Client_Departement != 'Inconnu']
+    new_data = new_data[new_data.Client_Age != 'Inconnu']
+    return new_data
+
+def add_distances(data, path):
+    f = open(path, 'r')
+    tuples = {}
+    distances = []
+    travel_times = []
+    for line in f:
+        line = line.split(' ')
+        tuples[line[0]] = (float(line[1]), float(line[2]))
+    for zipcode in data.Client_Code_Postal:
+        zipcode = ('0' * (5 - len(zipcode))) + zipcode
+        if zipcode in tuples:
+            distances.append(tuples[zipcode][0])
+            travel_times.append(tuples[zipcode][1])
+        else:
+            print("zipcode {} not in the 'distances' file".format(zipcode), file=sys.stderr)
+            print("you should run 'generate_distance.py' script", file=sys.stderr)
+            sys.exit()
+    data['distance'] = distances
+    data['travel_time'] = travel_times
+    return data
+
+def main(data_file, dist_file, output_folder):
+    data = pd.read_csv(data_file)
+    data = remove_trash_data(data)
+    mean_client_abo = data.Client_Abo_1819.mean()
+    total_len = len(data.Client_Abo_1819)
+
+    len_train = get_size(total_len, 60, mean_client_abo)
+    len_dev_test = get_size(total_len, 20, mean_client_abo)
+    len_final_test = get_size(total_len, 20, mean_client_abo)
+
+    #print("len_train: {}, len_dev_test: {}, len_final_test: {}".format(len_train, len_dev_test, len_final_test))
+
+    add_distances(data, dist_file)
+    indexs = [0, 0]
+    train = populate(data, indexs, len_train)
+    dev_test = populate(data, indexs, len_dev_test)
+    final_test = populate(data, indexs, len_final_test)
+    
+    #Shuffle data
+    train = train.reindex(np.random.permutation(train.index))
+    dev_test = dev_test.reindex(np.random.permutation(dev_test.index))
+    final_test = final_test.reindex(np.random.permutation(final_test.index))
+    
+    train = train.drop(columns=['field'])
+    dev_test = dev_test.drop(columns=['field'])
+    final_test = final_test.drop(columns=['field'])
+    #print(train.field.mean())
+    #print(dev_test.field.mean())
+    #print(final_test.field.mean())
+    output_folder += '/'
+    train.to_csv('{}./new_train.csv'.format(output_folder), index=False)
+    dev_test.to_csv('{}./new_dev_test.csv'.format(output_folder), index=False)
+    final_test.to_csv('{}./new_final_test.csv'.format(output_folder), index=False)
+    return
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("data_filename", help="filename of the data csv file")
+    parser.add_argument("dist_file", help="file with all the distances in")
+    parser.add_argument("-o", "--output", help="folder on which csv are written")
+    args = parser.parse_args()
+
+#main(args.data_filename, args.dist_file, args.output)
+ create correlation matrix
+# create correlation matrix 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+train_corr = train.iloc[:,1:46]
+
+corr = train_corr.corr()
+corr.to_excel("correlation.xls")
+corr.style.background_gradient()
+ DecisionTreeClassifier predict
+# DecisionTreeClassifier predict 
+from sklearn.metrics import accuracy_score
+x_test = dev_test.iloc[:,0:46]
+x_test_1 = x_test.drop(['Client_MYOL_Statut'], axis=1, inplace=False)
+x_t1_m = x_test_1.as_matrix()
+test_pred = clf.predict(x_t1_m)
+y_test = dev_test.Client_Abo_1819.as_matrix()
+ read file and generate train, test data
+filename = "C:\\Users\\..v"
+dist_file = "C:\\Users\\.."
+output_folder = "C:\\Users\\.."
+print(filename)
+main(filename,dist_file , output_folder)
+
+train= pd.read_csv("C:\\Users\\..")
+dev_test = pd.read_csv("C:\\Users\\..")
+final_test = pd.read_csv("C:\\Users\..")
+train.head(3)
