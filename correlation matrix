@@ -1,0 +1,10 @@
+# create correlation matrix 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+train_corr = train.iloc[:,1:46]
+
+corr = train_corr.corr()
+corr.to_excel("correlation.xls")
+corr.style.background_gradient()
