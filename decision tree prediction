@@ -1,0 +1,7 @@
+# DecisionTreeClassifier predict 
+from sklearn.metrics import accuracy_score
+x_test = dev_test.iloc[:,0:46]
+x_test_1 = x_test.drop(['Client_MYOL_Statut'], axis=1, inplace=False)
+x_t1_m = x_test_1.as_matrix()
+test_pred = clf.predict(x_t1_m)
+y_test = dev_test.Client_Abo_1819.as_matrix()
